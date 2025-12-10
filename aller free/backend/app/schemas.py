@@ -1,34 +1,73 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
 
+# ---------- Usuário ----------
+class RegisterIn(BaseModel):
+    email: EmailStr
+    password: str
+    name: Optional[str] = None
+    role: Optional[str] = "client"
 
-class LoginRequest(BaseModel):
-    ...
+class LoginIn(BaseModel):
+    email: EmailStr
+    password: str
 
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
-class LoginResponse(BaseModel):
-    ...
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    name: Optional[str] = None
+    role: str
 
+    class Config:
+        orm_mode = True
 
-class Usuario(BaseModel):
-    ...
+# ---------- Merchant ----------
+class MerchantCreate(BaseModel):
+    store_name: str
 
+class MerchantOut(BaseModel):
+    id: int
+    user_id: int
+    store_name: str
+    verified: bool
 
-class UsuarioResponse(BaseModel):
-    ...
+    class Config:
+        orm_mode = True
 
+# ---------- Tag (restrição alimentar) ----------
+class TagCreate(BaseModel):
+    code: str
+    label: str
 
-class Lojista(BaseModel):
-    ...
+class TagOut(BaseModel):
+    id: int
+    code: str
+    label: str
 
+    class Config:
+        orm_mode = True
 
-class LojistaResponse(BaseModel):
-    ...
+# ---------- Product ----------
+class ProductCreate(BaseModel):
+    merchant_id: int
+    name: str
+    description: Optional[str] = None
+    price: float = 0.0
+    # lista de códigos de tag (ex: ["gluten_free","vegan"])
+    tags: Optional[List[str]] = []
 
+class ProductOut(BaseModel):
+    id: int
+    merchant_id: int
+    name: str
+    description: Optional[str] = None
+    price: float
+    active: bool
+    tags: List[TagOut] = []
 
-class Produto(BaseModel):
-    ...
-
-
-class ProdutoResponse(BaseModel):
-    ...
+    class Config:
+        orm_mode = True
