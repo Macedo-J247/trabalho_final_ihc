@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Aller Free - Carrinho </title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para o carrinho */
+        #carrinho-geral {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        #carrinho-itens {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .carrinho-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .carrinho-item:last-child {
+            border-bottom: none;
+        }
+        .item-detalhes {
+            flex-grow: 1;
+        }
+        .item-detalhes h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        .item-detalhes p {
+            margin: 3px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .item-quantidade, .item-preco, .item-subtotal {
+            text-align: right;
+            width: 120px;
+            margin-left: 20px;
+        }
+        .item-quantidade input {
+            width: 50px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .item-remover {
+            width: 30px;
+            text-align: right;
+        }
+        .item-remover button {
+            background: none;
+            border: none;
+            color: red;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        #carrinho-resumo {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #carrinho-resumo p {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        #carrinho-resumo #total {
+            font-size: 1.5em;
+            color: #4CAF50;
+            border-top: 2px solid #eee;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .btn-checkout {
+            background-color: #ff9800; /* Laranja, como um botão de ação */
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn-checkout:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+    <div id="cabecalho">
+        <h1> Aller Free </h1>
+        <p style="text-align: center;"><a href="index.html"><- Continuar Comprando</a></p>
+    </div>
+
+    <div id="carrinho-geral">
+        <h1> Seu Carrinho </h1>
+
+        <div id="carrinho-itens">
+            <p id="carrinho-vazio" style="text-align: center; display: none;">Seu carrinho está vazio.</p>
+        </div>
+        
+        <div id="carrinho-resumo">
+            <p>
+                <span>Subtotal:</span>
+                <span id="subtotal">R$ 0.00</span>
+            </p>
+            <p id="total">
+                <span>Total:</span>
+                <span id="total-valor">R$ 0.00</span>
+            </p>
+            
+            <button class="btn-checkout" onclick="checkout()"> Finalizar Compra </button>
+        </div>
+    </div>
+
+    <script>
+        const cartItemsContainer = document.getElementById('carrinho-itens');
+        const subtotalElement = document.getElementById('subtotal');
+        const totalElement = document.getElementById('total-valor');
+        const emptyCartMessage = document.getElementById('carrinho-vazio');
+
+        // Carrega o carrinho do LocalStorage
+        function loadCart() {
+            const cart = localStorage.getItem('allerFreeCart');
+            return cart ? JSON.parse(cart) : [];
+        }
+
+        // Salva o carrinho no LocalStorage
+        function saveCart(cart) {
+            localStorage.setItem('allerFreeCart', JSON.stringify(cart));
+        }
+
+        // Recalcula e exibe o total
+        function calculateTotal(cart) {
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            // Por simplicidade, não vamos adicionar frete ou taxas. O total é o subtotal.
+            
+            subtotalElement.textContent = `R$ ${subtotal.toFixed(2)}`;
+            totalElement.textContent = `R$ ${subtotal.toFixed(2)}`;
+        }
+
+        // Renderiza a lista de itens no HTML
+        function renderCart() {
+            const cart = loadCart();
+            cartItemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                emptyCartMessage.style.display = 'block';
+                document.getElementById('carrinho-resumo').style.display = 'none';
+                calculateTotal([]);
+                return;
+            }
+
+            emptyCartMessage.style.display = 'none';
+            document.getElementById('carrinho-resumo').style.display = 'block';
+
+            cart.forEach(item => {
+                const subtotalItem = item.price * item.quantity;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'carrinho-item';
+                itemDiv.innerHTML = `
+                    <div class="item-detalhes">
+                        <h3>${item.name}</h3>
+                        <p>Restrições: ${item.tags.map(tag => tag.label).join(', ') || 'Nenhuma'}</p>
+                    </div>
+                    <div class="item-preco">
+                        R$ ${item.price.toFixed(2)}
+                    </div>
+                    <div class="item-quantidade">
+                        <input type="number" 
+                               min="1" 
+                               value="${item.quantity}" 
+                               onchange="updateQuantity(${item.id}, this.value)">
+                    </div>
+                    <div class="item-subtotal">
+                        R$ ${subtotalItem.toFixed(2)}
+                    </div>
+                    <div class="item-remover">
+                        <button onclick="removeItem(${item.id})">x</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(itemDiv);
+            });
+
+            calculateTotal(cart);
+        }
+
+        // Atualiza a quantidade de um produto
+        function updateQuantity(productId, newQuantity) {
+            let cart = loadCart();
+            const quantity = parseInt(newQuantity);
+            
+            if (isNaN(quantity) || quantity < 1) {
+                // Se a quantidade for inválida, restaura para o valor anterior (ou 1)
+                renderCart();
+                return;
+            }
+
+            const itemIndex = cart.findIndex(item => item.id === productId);
+            if (itemIndex > -1) {
+                cart[itemIndex].quantity = quantity;
+                saveCart(cart);
+                renderCart(); // Re-renderiza para atualizar subtotais
+            }
+        }
+
+        // Remove um produto do carrinho
+        function removeItem(productId) {
+            let cart = loadCart();
+            const newCart = cart.filter(item => item.id !== productId);
+            saveCart(newCart);
+            renderCart();
+        }
+
+        // Lógica de finalização de compra (placeholder)
+        function checkout() {
+            const cart = loadCart();
+            if (cart.length === 0) {
+                alert("Seu carrinho está vazio!");
+                return;
+            }
+            alert(`Compra finalizada! Total: ${totalElement.textContent}. Esta é apenas uma simulação.`);
+            // No futuro, aqui haveria uma requisição para o endpoint de pedido/checkout
+            
+            // Simulação: limpar carrinho após checkout
+            saveCart([]);
+            renderCart();
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', renderCart);
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Aller Free - Cadastro de Produto </title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para esta página */
+        #cadastro-produto-geral {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        #cadastro-produto-geral h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .tag-checkbox-group input {
+            margin-right: 5px;
+            width: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group input[type="number"] {
+            width: 96%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .btn-success {
+            background-color: #28a745;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <div id="cadastro-produto-geral">
+        <h1> Cadastro de Produto </h1>
+
+        <form id="productForm">
+            <div class="form-group">
+                <label for="store_name">Sua Loja (ID do Lojista):</label>
+                <input type="text" id="merchant_id_display" disabled value="Carregando..." style="background-color: #eee;">
+                <input type="hidden" id="merchant_id" required>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Nome do Produto:</label>
+                <input type="text" id="name" placeholder="Ex: Bolo de Chocolate Vegano" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Descrição (Opcional):</label>
+                <textarea id="description" placeholder="Ingredientes principais, detalhes..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Preço (R$):</label>
+                <input type="number" id="price" step="0.01" min="0" value="0.00" required>
+            </div>
+
+            <div class="form-group">
+                <label>Restrições Alimentares (Tags):</label>
+                <div id="tags-container">
+                    Carregando tags...
+                    </div>
+            </div>
+
+            <button type="submit" class="btn-primary btn-success"> Cadastrar Produto </button>
+            <p id="mensagem" style="text-align: center;"></p>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const token = localStorage.getItem('accessToken');
+        const messageElement = document.getElementById('mensagem');
+        
+        // 1. Verificar Autenticação e Role
+        if (!token) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+        }
+
+        async function decodeTokenAndCheckMerchant() {
+            try {
+                // Esta é uma simulação, pois o backend não tem um endpoint /auth/me ou similar para decodificar
+                // Na prática, o token precisaria ser validado no servidor.
+                // Aqui vamos simular que o token está ok e buscar a info do usuário (se houvesse um endpoint)
+
+                // Simulação: A API de tags/produtos deve retornar 403 se o usuário não for lojista
+                // Vamos tentar buscar a loja do usuário logado (assumindo que há um endpoint /lojista/me)
+                const merchantResponse = await fetch(`${API_URL}/lojistas/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (merchantResponse.status === 403 || merchantResponse.status === 401) {
+                    throw new Error("Acesso negado. Você não é um lojista verificado ou seu token expirou.");
+                }
+                
+                if (merchantResponse.ok) {
+                    const merchantData = await merchantResponse.json();
+                    document.getElementById('merchant_id').value = merchantData.id;
+                    document.getElementById('merchant_id_display').value = `${merchantData.store_name} (ID: ${merchantData.id})`;
+                    return merchantData.id;
+                } else {
+                    // Se o usuário está logado, mas não tem loja associada (ou erro 404),
+                    // ele precisaria criar uma loja primeiro.
+                    throw new Error("Lojista não encontrado ou não verificado.");
+                }
+
+            } catch (error) {
+                messageElement.textContent = `Erro de Autenticação: ${error.message}`;
+                messageElement.style.color = 'red';
+                console.error(error);
+                // Bloqueia o uso do formulário
+                document.getElementById('productForm').style.display = 'none';
+                return null;
+            }
+        }
+
+        // 2. Carregar Tags
+        async function loadTags() {
+            const tagsContainer = document.getElementById('tags-container');
+            tagsContainer.innerHTML = '';
+            try {
+                const response = await fetch(`${API_URL}/tags/all`);
+                if (!response.ok) {
+                    throw new Error('Não foi possível carregar as tags.');
+                }
+                const tags = await response.json();
+                
+                if (tags.length === 0) {
+                    tagsContainer.innerHTML = 'Nenhuma tag de restrição cadastrada.';
+                    return;
+                }
+
+                tags.forEach(tag => {
+                    const div = document.createElement('div');
+                    div.className = 'tag-checkbox-group';
+                    div.innerHTML = `
+                        <input type="checkbox" id="tag-${tag.code}" value="${tag.code}">
+                        <label for="tag-${tag.code}">${tag.label}</label>
+                    `;
+                    tagsContainer.appendChild(div);
+                });
+
+            } catch (error) {
+                tagsContainer.innerHTML = `Erro: ${error.message}`;
+                console.error(error);
+            }
+        }
+
+        // 3. Submeter Formulário
+        document.getElementById('productForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            messageElement.textContent = 'Enviando...';
+            messageElement.style.color = 'black';
+
+            const merchantId = document.getElementById('merchant_id').value;
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+            const price = parseFloat(document.getElementById('price').value);
+            
+            // Coletar tags selecionadas
+            const selectedTags = Array.from(document.querySelectorAll('#tags-container input[type="checkbox"]:checked'))
+                                     .map(checkbox => checkbox.value);
+
+            const payload = {
+                merchant_id: parseInt(merchantId),
+                name: name,
+                description: description || null,
+                price: price,
+                tags: selectedTags
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/produtos/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageElement.textContent = `Produto "${data.name}" cadastrado com sucesso!`;
+                    messageElement.style.color = 'green';
+                    document.getElementById('productForm').reset(); // Limpar formulário
+                    document.getElementById('merchant_id_display').value = `${document.getElementById('merchant_id_display').value}`; // Reatribuir loja
+                } else {
+                    messageElement.textContent = data.detail || 'Erro ao cadastrar produto.';
+                    messageElement.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                messageElement.textContent = 'Não foi possível conectar ao servidor ou houve um erro interno.';
+                messageElement.style.color = 'red';
+            }
+        });
+
+        // Inicialização
+        async function init() {
+            const merchantId = await decodeTokenAndCheckMerchant();
+            if (merchantId) {
+                loadTags();
+            }
+        }
+        init();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Aller Free - Dashboard do Lojista </title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para o Dashboard */
+        #dashboard-geral {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        #info-loja {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        #info-loja h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+        .status-verified {
+            color: white;
+            background-color: #4CAF50;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-unverified {
+            color: white;
+            background-color: #ff9800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        /* Tabela de Produtos */
+        #produtos-lista-merchant {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #produtos-lista-merchant th, #produtos-lista-merchant td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        #produtos-lista-merchant th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .produto-status {
+            cursor: pointer;
+        }
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: red; font-weight: bold; }
+        .btn-add-produto {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn-add-produto:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="cabecalho">
+        <h1> Aller Free </h1>
+        <p style="text-align: center;"><a href="index.html"><- Voltar à Página Principal</a></p>
+    </div>
+
+    <div id="dashboard-geral">
+        <h1> Dashboard do Lojista </h1>
+
+        <div id="auth-check">
+            <p>Verificando permissões...</p>
+        </div>
+
+        <div id="conteudo-lojista" style="display: none;">
+            <div id="info-loja">
+                <h2>Informações da Loja</h2>
+                <p>Nome da Loja: <span id="store-name">Carregando...</span></p>
+                <p>Status: <span id="store-verified-status"></span></p>
+            </div>
+
+            <a href="cadastro_produto.html" class="btn-add-produto"> + Cadastrar Novo Produto </a>
+            
+            <h2 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Seus Produtos</h2>
+            
+            <table id="produtos-lista-merchant">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Tags</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="produtos-body">
+                    <tr><td colspan="5">Carregando produtos...</td></tr>
+                </tbody>
+            </table>
+            <p id="no-products-message" style="display: none; text-align: center; margin-top: 20px;">Você ainda não cadastrou nenhum produto.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const token = localStorage.getItem('accessToken');
+        const conteudoLojista = document.getElementById('conteudo-lojista');
+        const authCheck = document.getElementById('auth-check');
+        let merchantId = null;
+
+        // ----------------- Autenticação e Dados da Loja -----------------
+        async function fetchMerchantData() {
+            authCheck.innerHTML = '<p>Verificando Loja...</p>';
+
+            if (!token) {
+                authCheck.innerHTML = '<p style="color: red;">Acesso negado. Por favor, <a href="login.html">faça login</a>.</p>';
+                return;
+            }
+
+            try {
+                // ASSUMIDO: Endpoint para buscar dados do lojista logado
+                const response = await fetch(`${API_URL}/lojistas/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 403 || response.status === 401) {
+                    throw new Error("Acesso negado. Você não tem permissão de lojista ou seu token expirou.");
+                }
+                
+                if (response.ok) {
+                    const merchantData = await response.json();
+                    merchantId = merchantData.id;
+                    
+                    // Renderiza Informações da Loja
+                    document.getElementById('store-name').textContent = merchantData.store_name;
+                    const statusSpan = document.getElementById('store-verified-status');
+                    statusSpan.textContent = merchantData.verified ? 'Verificada' : 'Pendente';
+                    statusSpan.className = merchantData.verified ? 'status-verified' : 'status-unverified';
+
+                    authCheck.style.display = 'none';
+                    conteudoLojista.style.display = 'block';
+
+                    fetchMerchantProducts();
+                } else {
+                    throw new Error("Lojista não encontrado. Verifique se sua conta está registrada como 'merchant'.");
+                }
+            } catch (error) {
+                authCheck.innerHTML = `<p style="color: red;">Erro: ${error.message}</p><p><a href="login.html">Voltar para Login</a></p>`;
+                console.error('Erro de Loja:', error);
+            }
+        }
+
+        // ----------------- Produtos da Loja -----------------
+        async function fetchMerchantProducts() {
+            const produtosBody = document.getElementById('produtos-body');
+            const noProductsMessage = document.getElementById('no-products-message');
+            produtosBody.innerHTML = '<tr><td colspan="5">Carregando produtos...</td></tr>';
+            noProductsMessage.style.display = 'none';
+
+            try {
+                // ASSUMIDO: Endpoint para buscar todos os produtos de um lojista específico
+                const response = await fetch(`${API_URL}/produtos/merchant/${merchantId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Falha ao carregar lista de produtos.');
+
+                const products = await response.json();
+                renderProductsTable(products);
+
+            } catch (error) {
+                produtosBody.innerHTML = `<tr><td colspan="5" style="color: red;">Erro ao carregar produtos: ${error.message}</td></tr>`;
+                console.error(error);
+            }
+        }
+
+        function renderProductsTable(products) {
+            const produtosBody = document.getElementById('produtos-body');
+            const noProductsMessage = document.getElementById('no-products-message');
+            produtosBody.innerHTML = '';
+
+            if (products.length === 0) {
+                noProductsMessage.style.display = 'block';
+                return;
+            }
+
+            products.forEach(product => {
+                const tagsHtml = product.tags.map(tag => tag.label).join(', ');
+                const statusClass = product.active ? 'status-active' : 'status-inactive';
+                const statusText = product.active ? 'Ativo' : 'Inativo';
+                const buttonText = product.active ? 'Desativar' : 'Ativar';
+
+                produtosBody.innerHTML += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>R$ ${product.price.toFixed(2)}</td>
+                        <td>${tagsHtml || 'Nenhuma'}</td>
+                        <td><span class="${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="produto-status btn-primary ${product.active ? 'btn-login' : 'btn-register'}" 
+                                    style="width: 100px; padding: 5px;"
+                                    onclick="toggleProductStatus(${product.id}, ${product.active})">
+                                ${buttonText}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ----------------- Ações do Produto -----------------
+        async function toggleProductStatus(productId, currentStatus) {
+            const newStatus = !currentStatus;
+            
+            // ASSUMIDO: Endpoint de atualização de produto que aceita o status 'active'
+            try {
+                const response = await fetch(`${API_URL}/produtos/update/${productId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ active: newStatus })
+                });
+
+                if (!response.ok) throw new Error('Não foi possível atualizar o status do produto.');
+
+                // Atualiza a tabela após o sucesso
+                alert(`Produto ID ${productId} ${newStatus ? 'ativado' : 'desativado'} com sucesso.`);
+                fetchMerchantProducts();
+
+            } catch (error) {
+                alert(`Erro ao atualizar o produto: ${error.message}`);
+                console.error(error);
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', fetchMerchantData);
+    </script>
+</body>
+</html>
