@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Aller Free - Dashboard do Administrador </title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* Estilos específicos para o Dashboard Admin */
+        #admin-dashboard-geral {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .dashboard-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .dashboard-section h2 {
+            margin-top: 0;
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        /* Gestão de Tags */
+        #tags-table, #merchants-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #tags-table th, #tags-table td, #merchants-table th, #merchants-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        #tags-table th, #merchants-table th {
+            background-color: #f2f2f2;
+        }
+        
+        #new-tag-form input[type="text"] {
+            width: 200px;
+            margin-right: 10px;
+            padding: 8px;
+        }
+
+        /* Botões de Ação Específicos */
+        .btn-verify {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-verify:hover {
+            background-color: #1e7e34;
+        }
+        .btn-add-tag {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-add-tag:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="cabecalho">
+        <h1> Aller Free - Admin </h1>
+        <p style="text-align: center;"><a href="../index.html"><- Voltar à Página Principal</a></p>
+    </div>
+
+    <div id="admin-dashboard-geral">
+        <div id="auth-check">
+            <p>Verificando permissões de administrador...</p>
+        </div>
+
+        <div id="conteudo-admin" style="display: none;">
+            
+            <div class="dashboard-section">
+                <h2>Gestão de Tags</h2>
+                <form id="new-tag-form" onsubmit="addTag(event)">
+                    <input type="text" id="tag-code" placeholder="Código (ex: gluten_free)" required>
+                    <input type="text" id="tag-label" placeholder="Rótulo (ex: Sem Glúten)" required>
+                    <button type="submit" class="btn-add-tag"> + Adicionar Tag </button>
+                    <p id="tag-message"></p>
+                </form>
+
+                <table id="tags-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th>Rótulo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tags-body">
+                        <tr><td colspan="3">Carregando tags...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="dashboard-section">
+                <h2>Lojistas Pendentes de Verificação</h2>
+                <table id="merchants-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ID Usuário</th>
+                            <th>Nome da Loja</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="merchants-body">
+                        <tr><td colspan="4">Carregando lojistas...</td></tr>
+                    </tbody>
+                </table>
+                <p id="merchant-message" style="text-align: center; margin-top: 10px;"></p>
+                <p id="no-merchants-message" style="text-align: center; display: none;">Nenhum lojista pendente de verificação.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const token = localStorage.getItem('accessToken');
+        const authCheck = document.getElementById('auth-check');
+        const conteudoAdmin = document.getElementById('conteudo-admin');
+        const tagMessage = document.getElementById('tag-message');
+        const merchantMessage = document.getElementById('merchant-message');
+        const noMerchantsMessage = document.getElementById('no-merchants-message');
+
+        // ----------------- Autenticação de Admin -----------------
+        async function checkAdminPermissions() {
+            if (!token) {
+                authCheck.innerHTML = '<p style="color: red;">Acesso negado. Por favor, <a href="../login/login.html">faça login</a>.</p>';
+                return;
+            }
+
+            // SIMULAÇÃO: No backend real, este endpoint de verificação de tags/lojistas
+            // deve retornar 403 se o usuário não for 'admin'.
+            // Vamos tentar carregar a primeira lista para testar a autenticação.
+            
+            try {
+                await fetchTags(); 
+                
+                authCheck.style.display = 'none';
+                conteudoAdmin.style.display = 'block';
+
+                // Se o fetch de tags foi bem-sucedido (sem 403/401), carregamos o restante
+                fetchUnverifiedMerchants();
+
+            } catch (error) {
+                authCheck.innerHTML = '<p style="color: red;">Erro de permissão: Você deve ser um Administrador.</p><p><a href="../login/login.html">Voltar para Login</a></p>';
+                console.error('Erro de Permissão:', error);
+            }
+        }
+
+        // ----------------- Gestão de Tags -----------------
+        async function fetchTags() {
+            const tagsBody = document.getElementById('tags-body');
+            tagsBody.innerHTML = '<tr><td colspan="3">Carregando tags...</td></tr>';
+            
+            const response = await fetch(`${API_URL}/tags/all`);
+            if (!response.ok) throw new Error('Falha ao carregar tags.');
+            
+            const tags = await response.json();
+            tagsBody.innerHTML = '';
+
+            if (tags.length === 0) {
+                tagsBody.innerHTML = '<tr><td colspan="3">Nenhuma tag cadastrada.</td></tr>';
+                return;
+            }
+
+            tags.forEach(tag => {
+                tagsBody.innerHTML += `
+                    <tr>
+                        <td>${tag.id}</td>
+                        <td>${tag.code}</td>
+                        <td>${tag.label}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function addTag(event) {
+            event.preventDefault();
+            const code = document.getElementById('tag-code').value;
+            const label = document.getElementById('tag-label').value;
+            tagMessage.textContent = 'Adicionando...';
+            tagMessage.style.color = 'black';
+
+            try {
+                // ASSUMIDO: Endpoint para criação de tags
+                const response = await fetch(`${API_URL}/tags/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code, label })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    tagMessage.textContent = `Tag "${label}" cadastrada com sucesso!`;
+                    tagMessage.style.color = 'green';
+                    document.getElementById('new-tag-form').reset();
+                    fetchTags(); // Recarrega a lista
+                } else {
+                    tagMessage.textContent = data.detail || 'Erro ao cadastrar tag.';
+                    tagMessage.style.color = 'red';
+                }
+            } catch (error) {
+                tagMessage.textContent = 'Não foi possível conectar ao servidor ou erro na requisição.';
+                tagMessage.style.color = 'red';
+                console.error(error);
+            }
+        }
+
+        // ----------------- Verificação de Lojistas -----------------
+        async function fetchUnverifiedMerchants() {
+            const merchantsBody = document.getElementById('merchants-body');
+            merchantsBody.innerHTML = '<tr><td colspan="4">Carregando lojistas...</td></tr>';
+            noMerchantsMessage.style.display = 'none';
+            merchantMessage.textContent = '';
+
+            try {
+                // ASSUMIDO: Endpoint para buscar lojistas não verificados
+                const response = await fetch(`${API_URL}/lojistas/unverified`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Falha ao carregar lista de lojistas.');
+
+                const merchants = await response.json();
+                merchantsBody.innerHTML = '';
+
+                if (merchants.length === 0) {
+                    noMerchantsMessage.style.display = 'block';
+                    merchantsBody.innerHTML = '<tr><td colspan="4"></td></tr>';
+                    return;
+                }
+
+                merchants.forEach(merchant => {
+                    merchantsBody.innerHTML += `
+                        <tr>
+                            <td>${merchant.id}</td>
+                            <td>${merchant.user_id}</td>
+                            <td>${merchant.store_name}</td>
+                            <td>
+                                <button class="btn-verify" onclick="verifyMerchant(${merchant.id})"> Verificar </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+            } catch (error) {
+                merchantsBody.innerHTML = `<tr><td colspan="4" style="color: red;">Erro: ${error.message}</td></tr>`;
+                console.error(error);
+            }
+        }
+
+        async function verifyMerchant(merchantIdToVerify) {
+            merchantMessage.textContent = 'Verificando...';
+            merchantMessage.style.color = 'black';
+
+            try {
+                // ASSUMIDO: Endpoint para alterar o status de verificação do lojista
+                const response = await fetch(`${API_URL}/lojistas/verify/${merchantIdToVerify}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    merchantMessage.textContent = `Lojista ID ${merchantIdToVerify} verificado com sucesso!`;
+                    merchantMessage.style.color = 'green';
+                    fetchUnverifiedMerchants(); // Recarrega a lista
+                } else {
+                    const data = await response.json();
+                    merchantMessage.textContent = data.detail || 'Erro ao verificar lojista.';
+                    merchantMessage.style.color = 'red';
+                }
+            } catch (error) {
+                merchantMessage.textContent = 'Não foi possível conectar ao servidor.';
+                merchantMessage.style.color = 'red';
+                console.error(error);
+            }
+        }
+
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', checkAdminPermissions);
+    </script>
+</body>
+</html>

@@ -93,9 +93,9 @@
         <div id="cabecalho">
             <h1> Aller Free </h1>
             <p id="auth-status" style="font-size: 0.9em; margin: 5px 0;">
-                <a href="login.html">Fazer Login</a>
+                <a href="login/login.html">Fazer Login</a>
             </p>
-            <p style="margin: 5px 0;"><a href="carrinho.html" style="font-weight: bold;">[ 🛒 Carrinho ]</a></p>
+            <p style="margin: 5px 0;"><a href="produtos/carrinho.html" style="font-weight: bold;">[ 🛒 Carrinho ]</a></p>
         </div>
 
         <div id="barra_pesquisa">
@@ -161,15 +161,15 @@
 
             if (userPayload) {
                 const role = userPayload.role;
-                let profileLink = 'client_profile.html';
+                let profileLink = 'perfis/client_profile.html';
                 let dashboardLink = '';
 
                 if (role === 'merchant') {
                     profileLink = 'merchant_profile.html';
-                    dashboardLink = ` | <a href="merchant_profile.html" style="font-weight: bold;">Dashboard Lojista</a>`;
+                    dashboardLink = ` | <a href="perfis/merchant_profile.html" style="font-weight: bold;">Dashboard Lojista</a>`;
                 } else if (role === 'admin') {
                     profileLink = 'admin_dashboard.html';
-                    dashboardLink = ` | <a href="admin_dashboard.html" style="font-weight: bold; color: #007bff;">Painel Admin</a>`;
+                    dashboardLink = ` | <a href="dashboard/admin_dashboard.html" style="font-weight: bold; color: #007bff;">Painel Admin</a>`;
                 }
                 
                 // Exibe Status + Link de Perfil + Dashboard/Função
@@ -180,7 +180,7 @@
                     | <a href="#" onclick="logout()">Sair</a>
                 `;
             } else {
-                statusHtml = '<a href="login.html">Fazer Login</a> | <a href="register.html">Cadastrar</a>';
+                statusHtml = '<a href="login/login.html">Fazer Login</a> | <a href="cadastros/register.html">Cadastrar</a>';
             }
 
             authStatus.innerHTML = statusHtml;

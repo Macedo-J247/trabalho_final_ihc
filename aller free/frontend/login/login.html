@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Aller Free - Login </title>
+    <link rel="stylesheet" href="../style.css"> </head>
+<body class="central-container"> <div id="geral">
+        <div id="cabecalho">
+            <h1> Aller Free </h1>
+        </div>
+
+        <div id="escolha">
+            <h1> Usuário | Loja </h1>
+        </div>
+        
+        <div id="icone">
+            <h2> icone aqui </h2>
+        </div>
+        
+        <form id="loginForm">
+            <div id="formulario de login">
+                <input type="email" id="email" placeholder="Email" required> <br/>
+                <input type="password" id="password" placeholder="Senha" required> <br/>
+                <br>
+            </div>
+            
+            <div style="font-size: 0.8em; margin: 10px 0;">
+                Lembrar - me | <a href="#">Esqueceu a senha?</a>
+            </div>
+
+            <div id="botoes">
+                <p>Não é cadastrado? <a href="../cadastros/register.html"> + Cadastre - se </a></p>
+                <button type="submit" class="btn-primary btn-login"> -> Entrar </button>
+            </div>
+            <p id="mensagem"></p>
+        </form>
+    </div>
+
+    <script>
+        // Função de Login (comunicação com o endpoint /auth/login)
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageElement = document.getElementById('mensagem');
+            messageElement.textContent = '';
+
+            try {
+                const response = await fetch('http://localhost:8000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Login bem-sucedido
+                    localStorage.setItem('accessToken', data.access_token);
+                    messageElement.textContent = 'Login bem-sucedido!';
+                    messageElement.style.color = 'green';
+                    window.location.href = 'index.html';
+                } else {
+                    // Falha no login (Credenciais inválidas ou outro erro)
+                    messageElement.textContent = data.detail || 'Erro ao fazer login.';
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                messageElement.textContent = 'Não foi possível conectar ao servidor.';
+            }
+        });
+    </script>
+</body>
+</html>
