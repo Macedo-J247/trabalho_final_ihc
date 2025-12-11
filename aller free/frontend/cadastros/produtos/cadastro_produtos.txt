@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Aller Free - Cadastro de Produto </title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../../style.css">
+    
     <style>
-        /* Estilos específicos para esta página */
         #cadastro-produto-geral {
             max-width: 600px;
             margin: 50px auto;
@@ -44,7 +44,7 @@
         .form-group input[type="text"],
         .form-group textarea,
         .form-group input[type="number"] {
-            width: 96%;
+            width: 96%; /* Ajustado para 96% para usar o padding de 2% do style.css */
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -114,12 +114,7 @@
 
         async function decodeTokenAndCheckMerchant() {
             try {
-                // Esta é uma simulação, pois o backend não tem um endpoint /auth/me ou similar para decodificar
-                // Na prática, o token precisaria ser validado no servidor.
-                // Aqui vamos simular que o token está ok e buscar a info do usuário (se houvesse um endpoint)
-
-                // Simulação: A API de tags/produtos deve retornar 403 se o usuário não for lojista
-                // Vamos tentar buscar a loja do usuário logado (assumindo que há um endpoint /lojista/me)
+                // ASSUME-SE o endpoint /lojistas/me existe para obter o ID do lojista logado
                 const merchantResponse = await fetch(`${API_URL}/lojistas/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -134,16 +129,13 @@
                     document.getElementById('merchant_id_display').value = `${merchantData.store_name} (ID: ${merchantData.id})`;
                     return merchantData.id;
                 } else {
-                    // Se o usuário está logado, mas não tem loja associada (ou erro 404),
-                    // ele precisaria criar uma loja primeiro.
-                    throw new Error("Lojista não encontrado ou não verificado.");
+                    throw new Error("Lojista não encontrado. Você precisa ter uma loja registrada.");
                 }
 
             } catch (error) {
                 messageElement.textContent = `Erro de Autenticação: ${error.message}`;
                 messageElement.style.color = 'red';
                 console.error(error);
-                // Bloqueia o uso do formulário
                 document.getElementById('productForm').style.display = 'none';
                 return null;
             }
@@ -154,6 +146,7 @@
             const tagsContainer = document.getElementById('tags-container');
             tagsContainer.innerHTML = '';
             try {
+                // ASSUME-SE o endpoint /tags/all existe para listar todas as tags
                 const response = await fetch(`${API_URL}/tags/all`);
                 if (!response.ok) {
                     throw new Error('Não foi possível carregar as tags.');
@@ -197,19 +190,20 @@
                                      .map(checkbox => checkbox.value);
 
             const payload = {
-                merchant_id: parseInt(merchantId),
+                merchant_id: parseInt(merchantId), // Requerido pelo esquema ProductCreate
                 name: name,
                 description: description || null,
                 price: price,
-                tags: selectedTags
+                tags: selectedTags // Lista de códigos
             };
 
             try {
-                const response = await fetch(`${API_URL}/produtos/create`, {
+                // CORREÇÃO do endpoint para /products/, conforme o produto.py
+                const response = await fetch(`${API_URL}/products/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}` // Requer o token de lojista
                     },
                     body: JSON.stringify(payload)
                 });
@@ -219,8 +213,9 @@
                 if (response.ok) {
                     messageElement.textContent = `Produto "${data.name}" cadastrado com sucesso!`;
                     messageElement.style.color = 'green';
-                    document.getElementById('productForm').reset(); // Limpar formulário
-                    document.getElementById('merchant_id_display').value = `${document.getElementById('merchant_id_display').value}`; // Reatribuir loja
+                    document.getElementById('productForm').reset();
+                    // Garante que o ID da loja não seja perdido
+                    document.getElementById('merchant_id_display').value = `${document.getElementById('merchant_id_display').value}`;
                 } else {
                     messageElement.textContent = data.detail || 'Erro ao cadastrar produto.';
                     messageElement.style.color = 'red';
@@ -232,7 +227,7 @@
             }
         });
 
-        // Inicialização
+        // Inicialização: Tenta carregar o lojista e as tags
         async function init() {
             const merchantId = await decodeTokenAndCheckMerchant();
             if (merchantId) {

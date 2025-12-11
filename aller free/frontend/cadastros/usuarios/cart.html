@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho - Aller Fácil</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container mobile-container">
+        <header class="status-bar">
+            <span class="time">9:35</span>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </header>
+
+        <main class="cart-page">
+            <div class="header-content">
+                <h1 class="logo" style="font-size: 1.5rem;">Resumo do pedido:</h1>
+                <button class="heart-btn">❤️</button>
+            </div>
+
+            <div class="cart-items" id="cartItems">
+                <div class="cart-item">
+                    <div class="item-avatar">🔴</div>
+                    <div class="item-details">
+                        <h3>Família Matheus Solar</h3>
+                        <p>R$ 25.50</p>
+                    </div>
+                    <button class="btn-remove" onclick="removeItem(1)">✕</button>
+                </div>
+
+                <div class="cart-item">
+                    <div class="item-avatar">🔴</div>
+                    <div class="item-details">
+                        <h3>Família Matheus Solar</h3>
+                        <p>R$ 25.50</p>
+                    </div>
+                    <button class="btn-remove" onclick="removeItem(2)">✕</button>
+                </div>
+
+                <div class="cart-item">
+                    <div class="item-avatar">🔴</div>
+                    <div class="item-details">
+                        <h3>Família Matheus Solar</h3>
+                        <p>R$ 25.50</p>
+                    </div>
+                    <button class="btn-remove" onclick="removeItem(3)">✕</button>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>3 x produtos</span>
+                    <span>R$ 25.50</span>
+                </div>
+                <div class="summary-row">
+                    <span>Taxa de entrega</span>
+                    <span>R$ 8.30</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>R$ 84.80</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="handleCheckout()">Finalizar Compra</button>
+
+            <nav class="bottom-nav">
+                <button class="nav-btn" onclick="goTo('products.html')">🏠</button>
+                <button class="nav-btn">🛒</button>
+            </nav>
+        </main>
+    </div>
+
+    <script>
+        function removeItem(itemId) {
+            fetch(`/api/cart/remove/${itemId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        function handleCheckout() {
+            fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Pedido realizado com sucesso!');
+                    goTo('products.html');
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        function goTo(page) {
+            window.location.href = page;
+        }
+
+        // Carregar carrinho do backend
+        fetch('/api/cart')
+            .then(res => res.json())
+            .then(data => {
+                const cartItems = document.getElementById('cartItems');
+                cartItems.innerHTML = '';
+                
+                data.items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'cart-item';
+                    itemDiv.innerHTML = `
+                        <div class="item-avatar">🔴</div>
+                        <div class="item-details">
+                            <h3>${item.name}</h3>
+                            <p>R$ ${item.price.toFixed(2)}</p>
+                        </div>
+                        <button class="btn-remove" onclick="removeItem(${item.id})">✕</button>
+                    `;
+                    cartItems.appendChild(itemDiv);
+                });
+            })
+            .catch(err => console.error(err));
+    </script>
+</body>
+</html>

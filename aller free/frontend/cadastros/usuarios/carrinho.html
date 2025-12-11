@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AllerFree - Carrinho</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-container">
+        <header class="header">
+            <div class="header-content">
+                <a href="home.html" class="logo-small">AllerFree</a>
+                <nav class="nav">
+                    <a href="home.html">Voltar</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="cart-container">
+                <h1>Seu Carrinho</h1>
+
+                <div class="cart-items-section">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Preço Unitário</th>
+                                <th>Quantidade</th>
+                                <th>Subtotal</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="cart-item-info">
+                                        <img src="/placeholder.svg?height=80&width=80" alt="Bolo">
+                                        <div>
+                                            <p class="item-name">Bolo Integral</p>
+                                            <p class="item-store">Família Multibolos</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>R$ 28,50</td>
+                                <td>
+                                    <input type="number" value="2" min="1" class="qty-input">
+                                </td>
+                                <td>R$ 57,00</td>
+                                <td>
+                                    <button class="btn-remove">Remover</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="cart-item-info">
+                                        <img src="/placeholder.svg?height=80&width=80" alt="Cookies">
+                                        <div>
+                                            <p class="item-name">Cookies Vegano</p>
+                                            <p class="item-store">Família Multibolos</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>R$ 18,50</td>
+                                <td>
+                                    <input type="number" value="1" min="1" class="qty-input">
+                                </td>
+                                <td>R$ 18,50</td>
+                                <td>
+                                    <button class="btn-remove">Remover</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cart-summary">
+                    <h2>Resumo do Pedido</h2>
+                    
+                    <div class="summary-item">
+                        <span>Subtotal (3 produtos)</span>
+                        <span>R$ 75,50</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Taxa de Entrega</span>
+                        <span>R$ 8,30</span>
+                    </div>
+
+                    <div class="summary-item total">
+                        <span>Total</span>
+                        <span>R$ 84,80</span>
+                    </div>
+
+                    <button class="btn-primary" style="width: 100%; margin-top: 20px;">Finalizar Compra</button>
+                    <a href="home.html" class="btn-secondary" style="display: block; text-align: center; margin-top: 10px;">Continuar Comprando</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

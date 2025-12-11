@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AllerFree - Vitrine da Loja</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-container">
+        <header class="header">
+            <div class="header-content">
+                <a href="home.html" class="logo-small">AllerFree</a>
+                
+                <div class="search-bar">
+                    <input 
+                        type="text" 
+                        id="busca" 
+                        name="busca" 
+                        placeholder="Buscar produtos..."
+                    >
+                    <button type="button" class="btn-search">Buscar</button>
+                </div>
+
+                <nav class="nav">
+                    <a href="home.html">Voltar</a>
+                    <a href="carrinho.html">Carrinho (2)</a>
+                </nav>
+            </div>
+        </header>
+
+        <div class="layout-with-sidebar">
+            <aside class="sidebar">
+                <h2>Filtros</h2>
+                <p class="sidebar-subtitle">Restrições Alimentares</p>
+
+                <div class="filter-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sem_gluten" value="true">
+                        <span>Sem Glúten</span>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sem_lactose" value="true">
+                        <span>Sem Lactose</span>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sem_soja" value="true">
+                        <span>Sem Soja</span>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="sem_acucar" value="true">
+                        <span>Sem Açúcar</span>
+                    </label>
+                </div>
+
+                <button type="button" class="btn-primary" style="width: 100%; margin-top: 20px;">Aplicar Filtros</button>
+            </aside>
+
+            <main class="main-content">
+                <section class="products-section">
+                    <div class="store-header">
+                        <h1>Família Multibolos</h1>
+                        <p>São Paulo, SP</p>
+                    </div>
+
+                    <div class="products-grid">
+                        <!-- Exemplo de card de produto -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Bolo Integral">
+                            </div>
+                            <h3 class="product-name">Bolo Integral</h3>
+                            <p class="product-price">R$ 28,50</p>
+                            <div class="product-tags">
+                                <span class="tag">Sem Glúten</span>
+                                <span class="tag">Sem Lactose</span>
+                            </div>
+                            <a href="detalhe-produto.html?id=1" class="btn-primary">Ver Detalhes</a>
+                        </div>
+
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Bolo de Chocolate">
+                            </div>
+                            <h3 class="product-name">Bolo de Chocolate</h3>
+                            <p class="product-price">R$ 35,00</p>
+                            <div class="product-tags">
+                                <span class="tag">Sem Lactose</span>
+                            </div>
+                            <a href="detalhe-produto.html?id=2" class="btn-primary">Ver Detalhes</a>
+                        </div>
+
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Bolo de Morango">
+                            </div>
+                            <h3 class="product-name">Bolo de Morango</h3>
+                            <p class="product-price">R$ 32,00</p>
+                            <div class="product-tags">
+                                <span class="tag">Sem Glúten</span>
+                                <span class="tag">Sem Açúcar</span>
+                            </div>
+                            <a href="detalhe-produto.html?id=3" class="btn-primary">Ver Detalhes</a>
+                        </div>
+
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Pão Integral">
+                            </div>
+                            <h3 class="product-name">Pão Integral</h3>
+                            <p class="product-price">R$ 15,00</p>
+                            <div class="product-tags">
+                                <span class="tag">Sem Glúten</span>
+                            </div>
+                            <a href="detalhe-produto.html?id=4" class="btn-primary">Ver Detalhes</a>
+                        </div>
+
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Cookies Vegano">
+                            </div>
+                            <h3 class="product-name">Cookies Vegano</h3>
+                            <p class="product-price">R$ 18,50</p>
+                            <div class="product-tags">
+                                <span class="tag">Sem Lactose</span>
+                                <span class="tag">Sem Soja</span>
+                            </div>
+                            <a href="detalhe-produto.html?id=5" class="btn-primary">Ver Detalhes</a>
+                        </div>
+
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Cupcake Saudável">
+                            </div>
+                            <h3 class="product-name">Cupcake Saudável</h3>
+                            <p class="product-price">R$ 22,00</p>
+                            <div class="product-tags">
+                                <span class="tag">Sem Glúten</span>
+                                <span class="tag">Sem Açúcar</span>
+                                <span class="tag">Sem Lactose</span>
+                            </div>
+                            <a href="detalhe-produto.html?id=6" class="btn-primary">Ver Detalhes</a>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
