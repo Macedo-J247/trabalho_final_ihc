@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AllerFree - Cadastro Loja</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../../style.css">
 </head>
 <body>
     <div class="page-container">
         <header class="header">
             <div class="header-content">
-                <a href="index.html" class="logo-small">AllerFree</a>
+                <a href="../../index.html" class="logo-small">AllerFree</a>
                 <nav class="nav">
-                    <a href="index.html">Voltar</a>
+                    <a href="../../index.html">Voltar</a>
                 </nav>
             </div>
         </header>
@@ -21,173 +21,143 @@
             <div class="form-card">
                 <h1>Cadastro de Loja Parceira</h1>
                 
-                <form action="/api/loja/cadastro" method="POST" enctype="multipart/form-data">
+                <form id="cadastroLojaForm" enctype="multipart/form-data">
                     <fieldset>
                         <legend>Informações da Loja</legend>
                         
                         <div class="form-group">
                             <label for="nome_loja">Nome da Loja</label>
-                            <input 
-                                type="text" 
-                                id="nome_loja" 
-                                name="nome_loja" 
-                                placeholder="Sua Loja" 
-                                required
-                            >
+                            <input type="text" id="nome_loja" name="nome_loja" placeholder="Sua Loja" required>
                         </div>
 
                         <div class="form-group">
                             <label for="cnpj">CNPJ</label>
-                            <input 
-                                type="text" 
-                                id="cnpj" 
-                                name="cnpj" 
-                                placeholder="00.000.000/0000-00" 
-                                required
-                            >
+                            <input type="text" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" required>
                         </div>
 
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                placeholder="contato@loja.com" 
-                                required
-                            >
+                            <input type="email" id="email" name="email" placeholder="contato@loja.com" required>
                         </div>
 
                         <div class="form-group">
                             <label for="telefone">Telefone</label>
-                            <input 
-                                type="tel" 
-                                id="telefone" 
-                                name="telefone" 
-                                placeholder="(11) 3 1234-5678" 
-                                required
-                            >
+                            <input type="tel" id="telefone" name="telefone" placeholder="(11) 3 1234-5678" required>
                         </div>
 
                         <div class="form-group">
                             <label for="logo">Logo da Loja</label>
-                            <input 
-                                type="file" 
-                                id="logo" 
-                                name="logo" 
-                                accept="image/*" 
-                                required
-                            >
+                            <input type="file" id="logo" name="logo" accept="image/*" required>
                         </div>
                     </fieldset>
 
                     <fieldset>
                         <legend>Endereço da Loja</legend>
-                        
                         <div class="form-group">
                             <label for="rua">Rua</label>
-                            <input 
-                                type="text" 
-                                id="rua" 
-                                name="rua" 
-                                placeholder="Rua Principal" 
-                                required
-                            >
+                            <input type="text" id="rua" name="rua" placeholder="Rua Principal" required>
                         </div>
-
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="numero">Número</label>
-                                <input 
-                                    type="text" 
-                                    id="numero" 
-                                    name="numero" 
-                                    placeholder="123" 
-                                    required
-                                >
+                                <input type="text" id="numero" name="numero" placeholder="123" required>
                             </div>
-
                             <div class="form-group">
                                 <label for="complemento">Complemento</label>
-                                <input 
-                                    type="text" 
-                                    id="complemento" 
-                                    name="complemento" 
-                                    placeholder="Sala 1"
-                                >
+                                <input type="text" id="complemento" name="complemento" placeholder="Sala 1">
                             </div>
                         </div>
-
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="cidade">Cidade</label>
-                                <input 
-                                    type="text" 
-                                    id="cidade" 
-                                    name="cidade" 
-                                    placeholder="São Paulo" 
-                                    required
-                                >
+                                <input type="text" id="cidade" name="cidade" placeholder="São Paulo" required>
                             </div>
-
                             <div class="form-group">
                                 <label for="estado">Estado</label>
-                                <input 
-                                    type="text" 
-                                    id="estado" 
-                                    name="estado" 
-                                    placeholder="SP" 
-                                    maxlength="2"
-                                    required
-                                >
+                                <input type="text" id="estado" name="estado" placeholder="SP" maxlength="2" required>
                             </div>
-
                             <div class="form-group">
                                 <label for="cep">CEP</label>
-                                <input 
-                                    type="text" 
-                                    id="cep" 
-                                    name="cep" 
-                                    placeholder="01234-567" 
-                                    required
-                                >
+                                <input type="text" id="cep" name="cep" placeholder="01234-567" required>
                             </div>
                         </div>
                     </fieldset>
 
                     <fieldset>
                         <legend>Segurança</legend>
-                        
                         <div class="form-group">
                             <label for="senha">Senha</label>
-                            <input 
-                                type="password" 
-                                id="senha" 
-                                name="senha" 
-                                placeholder="Crie uma senha forte" 
-                                required
-                            >
+                            <input type="password" id="senha" name="senha" placeholder="Crie uma senha forte" required>
                         </div>
-
                         <div class="form-group">
                             <label for="confirma_senha">Confirmar Senha</label>
-                            <input 
-                                type="password" 
-                                id="confirma_senha" 
-                                name="confirma_senha" 
-                                placeholder="Repita a senha" 
-                                required
-                            >
+                            <input type="password" id="confirma_senha" name="confirma_senha" placeholder="Repita a senha" required>
                         </div>
                     </fieldset>
+                    
+                    <p id="cadastroMensagem" style="margin-top: 15px; font-weight: bold;"></p>
 
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Criar Conta</button>
-                        <a href="index.html" class="btn-secondary">Cancelar</a>
+                        <a href="../../index.html" class="btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>
         </main>
     </div>
+
+    <script>
+        document.getElementById('cadastroLojaForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // IMPEDE O RECARREGAMENTO DA PÁGINA
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const messageElement = document.getElementById('cadastroMensagem');
+            
+            // 1. Validação de Senhas no Frontend
+            const senha = formData.get('senha');
+            const confirmaSenha = formData.get('confirma_senha');
+
+            messageElement.textContent = 'Processando...';
+            messageElement.style.color = '#007bff';
+
+            if (senha !== confirmaSenha) {
+                messageElement.textContent = 'Erro: As senhas digitadas não coincidem.';
+                messageElement.style.color = 'red';
+                return;
+            }
+
+            // O FormData já contém todos os campos, incluindo o arquivo. 
+            // Não é necessário JSON.stringify para upload de arquivos.
+            
+            try {
+                // Rota do seu backend para cadastro de loja/logista. Verifique se está correta.
+                const response = await fetch('/api/loja/cadastro', { 
+                    method: 'POST',
+                    body: formData // Envia o FormData diretamente (multipart/form-data)
+                });
+
+                if (response.ok || response.status === 201) { 
+                    messageElement.textContent = 'Cadastro da Loja realizado com sucesso! Redirecionando para o Login...';
+                    messageElement.style.color = 'green';
+                    
+                    // Redirecionamento Pós-Sucesso (Após 2 segundos)
+                    setTimeout(() => {
+                        // Redireciona para a tela de login
+                        window.location.href = '../../login/login.html'; 
+                    }, 2000); 
+                } else {
+                    // Trata erro de validação ou do servidor
+                    const errorData = await response.json().catch(() => ({ detail: 'Erro desconhecido do servidor.' }));
+                    messageElement.textContent = errorData.detail || 'Erro ao cadastrar loja. Verifique os dados.';
+                    messageElement.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                messageElement.textContent = 'Não foi possível conectar ao servidor. Verifique o console.';
+                messageElement.style.color = 'red';
+            }
+        });
+    </script>
 </body>
 </html>

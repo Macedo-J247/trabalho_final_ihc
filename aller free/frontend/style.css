@@ -434,7 +434,7 @@ legend {
    =========================== */
 
 .store-card {
-  background: var(--white);
+  background: var(--dark-green);
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
