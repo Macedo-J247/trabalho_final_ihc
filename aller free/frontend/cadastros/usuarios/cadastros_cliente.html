@@ -125,7 +125,7 @@
 
             try {
                 // 2. Envio da Requisição POST para o Backend
-                const response = await fetch('/cadastros/login/cadastro_sucesso.html', { // Rota do seu backend
+                const response = await fetch('http://127.0.0.1:8000/user', { // Rota do seu backend
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)

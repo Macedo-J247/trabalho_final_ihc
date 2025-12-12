@@ -132,7 +132,7 @@
             
             try {
                 // Rota do seu backend para cadastro de loja/logista. Verifique se está correta.
-                const response = await fetch('/api/loja/cadastro', { 
+                const response = await fetch('http://127.0.0.1:8000/merchants', { 
                     method: 'POST',
                     body: formData // Envia o FormData diretamente (multipart/form-data)
                 });
